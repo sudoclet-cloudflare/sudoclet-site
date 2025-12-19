@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sudoclet — Mobile Experiments, Notes, and Prototypes</title>
+  <meta name="description" content="Sudoclet.com is a personal lab for learning, experimenting, and building simple, useful mobile and web tools at a sustainable pace." />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:title" content="Sudoclet — Mobile Experiments, Notes, and Prototypes" />
+  <meta property="og:description" content="A personal lab for learning, experimenting, and building simple, useful mobile and web tools at a sustainable pace." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sudoclet.com/" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Favicon placeholders (replace with your own assets when ready) -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Minimal, accessible, dark-mode-friendly CSS -->
+  <style>
+    :root {
+      --bg: #0b0b0c;
+      --fg: #f4f6f8;
+      --muted: #b2b7be;
+      --brand: #7c8cff; /* gentle indigo */
+      --brand-2: #9a6bff; /* accent */
+      --card: #141416;
+      --border: #24262a;
+      --ok: #3cc46e;
+      --warn: #ffb84d;
+      --maxw: 1080px;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #ffffff;
+        --fg: #1b1d21;
+        --muted: #535a63;
+        --card: #f7f8fa;
+        --border: #e5e7eb;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+    a { color: var(--brand); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 1rem; }
+
+    header {
+      position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px);
+      background: color-mix(in oklab, var(--bg) 80%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: .8rem 0; }
+    .brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; letter-spacing: .2px; }
+    .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--brand), var(--brand-2)); display: inline-block; }
+    .nav a { margin-left: 1rem; color: var(--fg); opacity: .9; }
+    .nav a:hover { opacity: 1; }
+
+    .hero { padding: clamp(3rem, 6vw, 5rem) 0; }
+    .hero h1 { font-size: clamp(1.8rem, 5.5vw, 3rem); line-height: 1.15; margin: 0 0 .6rem; letter-spacing: .2px; }
+    .hero p { margin: 0 0 1.2rem; color: var(--muted); max-width: 50ch; }
+    .cta { display: flex; gap: .75rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .7rem 1rem; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--card); color: var(--fg); text-decoration: none; font-weight: 600;
+    }
+    .btn.primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border-color: transparent; }
+    .btn:hover { transform: translateY(-1px); transition: transform 120ms; text-decoration: none; }
+
+    section { padding: 2.2rem 0; border-top: 1px solid var(--border); }
+    h2 { font-size: 1.4rem; margin: 0 0 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; }
+    .card { grid-column: span 12; padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+
+    @media (min-width: 720px) {
+      .card.third { grid-column: span 4; }
+      .card.half { grid-column: span 6; }
+    }
+    .status { font-size: .8rem; padding: .25rem .5rem; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--muted); }
+    .status.ok { color: var(--ok); border-color: color-mix(in oklab, var(--ok), var(--border)); }
+    .status.soon { color: var(--warn); border-color: color-mix(in oklab, var(--warn), var(--border)); }
+
+    ul.clean { list-style: none; padding: 0; margin: 0; }
+    li + li { margin-top: .75rem; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 0 3rem; color: var(--muted); font-size: .95rem; }
+    .hr { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+    /* Improved focus styles for accessibility */
+    :is(a, button, .btn):focus { outline: 2px solid var(--brand); outline-offset: 2px; }
+  </style>
+
+  <!-- Basic structured data (edit later as needed) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Sudoclet",
+    "url": "https://sudoclet.com/",
+    "description": "A personal lab for learning, experimenting, and building simple, useful mobile and web tools at a sustainable pace.",
+    "logo": "https://sudoclet.com/apple-touch-icon.png"
+  }
+  </script>
+</head>
+<body>
+  <header role="banner">
+    <div class="wrap nav" aria-label="Primary">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <span>Sudoclet</span>
+      </div>
+      <nav aria-label="Main">
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#notes">Notebook</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="content" class="wrap">
+    <section class="hero" aria-label="Intro">
+      <h1>Mobile experiments, one step at a time.</h1>
+      <p>
+        Welcome to <strong>Sudoclet</strong> — a personal lab where I learn, tinker, and share progress on
+        practical Android/iOS tools and simple web utilities. This site begins modestly and grows as I do.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="#projects">View Projects</a>
+        <a class="btn" href="#notes" aria-label="Read the lab notebook">Read the Lab Notebook</a>
+        <a class="btn" href="/feed.xml" aria-label="RSS feed for updates">RSS</a>
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="about-h">
+      <h2 id="about-h">About</h2>
+      <div class="grid">
+        <article class="card half">
+          <p>
+            I’m an independent learner and aspiring developer exploring modern app development — especially
+            <em>mobile</em>. I’ve built software in past eras and I’m updating my toolkit for today’s platforms.
+            Progress here is steady but sustainable.
+          </p>
+          <p>
+            Expect small utilities, honest notes, and occasional prototypes. Nothing flashy — just useful.
+          </p>
+        </article>
+        <aside class="card half" aria-label="Site status">
+          <p><strong>Site Status</strong></p>
+          <ul class="clean">
+            <li>Content: <span class="status soon">growing</span></li>
+            <li>Focus: mobile & web tools</li>
+            <li>Pace: sustainable, health‑first</li>
+            <li>Last updated: <time datetime="2025-10-15">October 15, 2025</time></li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section id="projects" aria-labelledby="projects-h">
+      <h2 id="projects-h">Projects</h2>
+      <div class="grid">
+        <article class="card third" aria-labelledby="p1h">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;">
+            <h3 id="p1h" style="margin:.2rem 0; font-size:1.05rem;">Widget Tap Logger</h3>
+            <span class="status soon" title="Exploring">exploring</span>
+          </div>
+          <p style="margin:.4rem 0 0; color:var(--muted);">
+            Android/iOS concept: place multiple home‑screen widgets that log timestamp & GPS on tap and export CSV.
+          </p>
+          <p style="margin:.4rem 0 0;">
+            <a href="#notes">Design notes →</a>
+          </p>
+        </article>
+
+        <article class="card third" aria-labelledby="p2h">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;">
+            <h3 id="p2h" style="margin:.2rem 0; font-size:1.05rem;">Offline Docs Explorer</h3>
+            <span class="status soon">planning</span>
+          </div>
+          <p style="margin:.4rem 0 0; color:var(--muted);">
+            Lightweight reader for technical docs on mobile, with quick search and bookmarks for working offline.
+          </p>
+        </article>
+
+        <article class="card third" aria-labelledby="p3h">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;">
+            <h3 id="p3h" style="margin:.2rem 0; font-size:1.05rem;">Photo + Geo Notes</h3>
+            <span class="status soon">sketching</span>
+          </div>
+          <p style="margin:.4rem 0 0; color:var(--muted);">
+            A tiny field notebook: snap a photo, auto‑attach location & time, jot a note, and export.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="notes" aria-labelledby="notes-h">
+      <h2 id="notes-h">Lab Notebook</h2>
+      <div class="grid">
+        <article class="card">
+          <ul class="clean" aria-label="Recent notes">
+            <li>
+              <strong>Getting started again</strong> — build tools, SDKs, and a realistic weekly rhythm.
+              <time datetime="2025-10-15" style="margin-left:.5rem; color:var(--muted);">Oct 15, 2025</time>
+            </li>
+            <li>
+              <strong>Widget ideas</strong> — how tiny, focused apps can be most helpful.
+              <time datetime="2025-10-10" style="margin-left:.5rem; color:var(--muted);">Oct 10, 2025</time>
+            </li>
+            <li>
+              <strong>Notes on offline docs</strong> — why reliable access beats fancy features.
+              <time datetime="2025-10-05" style="margin-left:.5rem; color:var(--muted);">Oct 5, 2025</time>
+            </li>
+          </ul>
+          <p style="margin-top:1rem; color:var(--muted);">More entries coming soon. An RSS feed will be available at <code>/feed.xml</code>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact</h2>
+      <div class="grid">
+        <article class="card half">
+          <p style="margin-top:0;">Have feedback or want to say hello?</p>
+          <p>
+            <a class="btn" href="/cdn-cgi/l/email-protection#f29a979e9e9db28187969d919e9786dc919d9f" aria-label="Email Sudoclet">Email me</a>
+            <a class="btn" href="https://github.com/" rel="me noopener" target="_blank">GitHub</a>
+            <a class="btn" href="https://www.youtube.com/" rel="me noopener" target="_blank">YouTube</a>
+          </p>
+          <p style="color:var(--muted); font-size:.95rem;">(Links above are placeholders — update when ready.)</p>
+        </article>
+        <aside class="card half" aria-label="Colophon">
+          <p><strong>Colophon</strong></p>
+          <ul class="clean">
+            <li>Static HTML + CSS, no framework</li>
+            <li>Fast, accessible, mobile‑first</li>
+            <li>Host: iPage • Domain: Network Solutions</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="wrap">
+      <div class="hr" aria-hidden="true"></div>
+      <p>© <span id="y"></span> Sudoclet. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Update year automatically
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
