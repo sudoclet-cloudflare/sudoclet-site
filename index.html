@@ -164,6 +164,24 @@
         </aside>
       </div>
     </section>
+    
+    <section>
+  <h2>Contact</h2>
+  <p>
+    <button id="reveal-email">Reveal email address</button>
+  </p>
+  <p id="email" style="font-family: monospace;"></p>
+</section>
+
+<script>
+  document.getElementById("reveal-email").addEventListener("click", () => {
+    const user = "contact";
+    const domain = "sudoclet.com";
+    const addr = `${user}@${domain}`;
+    const el = document.getElementById("email");
+    el.innerHTML = `<a href="mailto:${addr}">${addr}</a>`;
+  });
+</script>
 
     <section id="projects" aria-labelledby="projects-h">
       <h2 id="projects-h">Projects</h2>
