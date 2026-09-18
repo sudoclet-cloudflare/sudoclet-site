@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <!-- Makes the designer display properly on phones and tablets. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Sudoclet UI Designer</title>
+
+  <!-- Keep styling separate from the HTML. -->
+  <link rel="stylesheet" href="designer.css">
+</head>
+
+<body>
+
+  <header class="app-header">
+    <h1>Sudoclet UI Designer</h1>
+    <p>Design interface elements visually and generate application code.</p>
+  </header>
+
+  <main class="workspace">
+
+    <!-- ============================================================
+         LEFT PANEL
+         Controls used to modify the selected UI element.
+         ============================================================ -->
+    <section class="panel controls-panel">
+
+      <h2>Properties</h2>
+
+      <label>
+        Button text
+        <input id="buttonText" type="text" value="Add Entry">
+      </label>
+
+      <label>
+        Width
+        <input id="buttonWidth" type="range"
+               min="80" max="350" value="180">
+        <output id="buttonWidthValue">180 px</output>
+      </label>
+
+      <label>
+        Height
+        <input id="buttonHeight" type="range"
+               min="30" max="150" value="60">
+        <output id="buttonHeightValue">60 px</output>
+      </label>
+
+      <label>
+        Corner radius
+        <input id="cornerRadius" type="range"
+               min="0" max="60" value="14">
+        <output id="cornerRadiusValue">14 px</output>
+      </label>
+
+      <label>
+        Font size
+        <input id="fontSize" type="range"
+               min="10" max="40" value="18">
+        <output id="fontSizeValue">18 px</output>
+      </label>
+
+      <label>
+        Background color
+        <input id="backgroundColor"
+               type="color"
+               value="#5865f2">
+      </label>
+
+      <label>
+        Text color
+        <input id="textColor"
+               type="color"
+               value="#ffffff">
+      </label>
+
+    </section>
+
+
+    <!-- ============================================================
+         CENTER PANEL
+         Live preview of the interface element.
+         ============================================================ -->
+    <section class="panel preview-panel">
+
+      <h2>Preview</h2>
+
+      <div class="device-preview">
+
+        <button id="previewButton">
+          Add Entry
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         RIGHT PANEL
+         Shows the platform-independent representation of the design.
+         ============================================================ -->
+    <section class="panel code-panel">
+
+      <h2>Design Model</h2>
+
+      <pre id="designModel"></pre>
+
+    </section>
+
+  </main>
+
+  <!-- JavaScript is loaded last so the HTML controls already exist. -->
+  <script src="designer.js"></script>
+
+</body>
+</html>
