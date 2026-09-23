@@ -53,8 +53,8 @@ const design = {
                 id: "container-1",
                 type: "container",
 
-                x: 0,
-                y: 0,
+                x: 50,
+                y: 100,
 
                 children: [
 
