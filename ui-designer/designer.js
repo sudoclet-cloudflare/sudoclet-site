@@ -178,8 +178,7 @@ const fontSizeValue =
 */
 function getButton1() {
 
-    return design.surface.children[0].children[0];
-
+return design.surface.children[0].children[0].children[0];
 }
 
 
