@@ -58,31 +58,46 @@ const design = {
 
                 children: [
 
-                    /*
-                        Button 1 is positioned relative to container-1.
+     /*
+        Container 2 is positioned relative to Container 1.
 
-                        Because container-1 currently has offset (0,0),
-                        the button's local and absolute positions are
-                        currently identical.
-                    */
-                    {
-                        id: "button-1",
-                        type: "button",
+        It has no size and is not drawn. It simply establishes
+        another coordinate origin for its children.
+    */
+    {
+        id: "container-2",
+        type: "container",
 
-                        x: 105,
-                        y: 100,
+        x: 25,
+        y: 50,
 
-                        width: 180,
-                        height: 60,
+        children: [
 
-                        text: "Add Entry",
+            /*
+                Button 1 is now positioned relative to Container 2.
+            */
+            {
+                id: "button-1",
+                type: "button",
 
-                        cornerRadius: 14,
-                        fontSize: 18,
+                x: 105,
+                y: 100,
 
-                        backgroundColor: "#5865f2",
-                        textColor: "#ffffff"
-                    }
+                width: 180,
+                height: 60,
+
+                text: "Add Entry",
+
+                cornerRadius: 14,
+                fontSize: 18,
+
+                backgroundColor: "#5865f2",
+                textColor: "#ffffff"
+            }
+
+        ]
+    }
+
 
                 ]
             }
