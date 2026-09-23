@@ -171,16 +171,54 @@ const fontSizeValue =
    ========================================================= */
 
 /*
+    Search a tree of objects for an object with the requested ID.
+
+    Because containers can contain other containers, this function
+    calls itself whenever it encounters an object with children.
+
+    This allows an object to be found regardless of how deeply it
+    is nested in the design.
+*/
+function findObjectById(children, id) {
+
+    for (const child of children) {
+
+        // Did we find the requested object?
+        if (child.id === id) {
+            return child;
+        }
+
+        // If this object has children, search them recursively.
+        if (child.children) {
+
+            const result =
+                findObjectById(child.children, id);
+
+            // If the recursive search found it, return it.
+            if (result) {
+                return result;
+            }
+        }
+    }
+
+    // The object does not exist anywhere below this point.
+    return null;
+}
+
+/*
     For this version we know exactly where Button 1 lives.
 
     Later we will replace this with a function that finds any object
-    in the tree by its unique ID.
+    in the tree by its unique ID. - UPDATE - getButton1() has been 
+    replaced with a version that uses findObjectById() to locate the button anywhere in the design tree.
 */
 function getButton1() {
 
-return design.surface.children[0].children[0].children[0];
+    return findObjectById(
+        design.surface.children,
+        "button-1"
+    );
 }
-
 
 /* =========================================================
    RENDERING
