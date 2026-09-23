@@ -1,265 +1,490 @@
 /*
- * Sudoclet UI Designer
- * Version 0.1
- *
- * The central idea is that the design is stored independently
- * from the HTML preview.
- *
- * Later, code generators will translate this same object into:
- *
- *   - Jetpack Compose
- *   - SwiftUI
- *   - HTML/CSS
- */
+    Sudoclet UI Designer
+    Version 0.2
+
+    This version introduces:
+
+        1. A finite root surface.
+        2. Dimensionless containers.
+        3. Elements positioned relative to containers.
+        4. Recursive container rendering.
+        5. Absolute screen positions calculated from accumulated offsets.
+
+    IMPORTANT:
+
+    Containers are NOT graphical rectangles.
+
+    A container represents only:
+
+        - an X/Y offset
+        - a collection of children
+
+    A container has no width or height and does not perform clipping.
+
+    The root surface provides the visible clipping boundary.
+*/
 
 
-/* ============================================================
+/* =========================================================
    DESIGN MODEL
-   ============================================================ */
+   ========================================================= */
 
 /*
- * This object is our platform-independent description
- * of the interface element.
- */
+    This object is the authoritative description of our design.
 
+    Eventually the user will be able to add, remove, move and edit
+    everything in this structure through the graphical editor.
+*/
 const design = {
 
-  type: "button",
+    surface: {
 
-  text: "Add Entry",
+        width: 390,
+        height: 700,
 
-  width: 180,
-  height: 60,
+        children: [
 
-  cornerRadius: 14,
+            /*
+                Container 1 establishes a new coordinate origin.
 
-  fontSize: 18,
+                Its children are positioned relative to this point.
+            */
+            {
+                id: "container-1",
+                type: "container",
 
-  backgroundColor: "#5865f2",
-  textColor: "#ffffff"
+                x: 0,
+                y: 0,
 
+                children: [
+
+                    /*
+                        Button 1 is positioned relative to container-1.
+
+                        Because container-1 currently has offset (0,0),
+                        the button's local and absolute positions are
+                        currently identical.
+                    */
+                    {
+                        id: "button-1",
+                        type: "button",
+
+                        x: 105,
+                        y: 100,
+
+                        width: 180,
+                        height: 60,
+
+                        text: "Add Entry",
+
+                        cornerRadius: 14,
+                        fontSize: 18,
+
+                        backgroundColor: "#5865f2",
+                        textColor: "#ffffff"
+                    }
+
+                ]
+            }
+
+        ]
+    }
 };
 
 
-/* ============================================================
-   GET REFERENCES TO THE HTML CONTROLS
-   ============================================================ */
+/* =========================================================
+   HTML REFERENCES
+   ========================================================= */
 
+const previewSurface =
+    document.getElementById("previewSurface");
+
+const designModelDisplay =
+    document.getElementById("designModel");
+
+
+/*
+    For version 0.2 the Properties panel edits Button 1 directly.
+
+    Later we will replace this with a general selection system.
+*/
 const buttonText =
-  document.getElementById("buttonText");
+    document.getElementById("buttonText");
+
+const buttonX =
+    document.getElementById("buttonX");
+
+const buttonY =
+    document.getElementById("buttonY");
 
 const buttonWidth =
-  document.getElementById("buttonWidth");
+    document.getElementById("buttonWidth");
 
 const buttonHeight =
-  document.getElementById("buttonHeight");
+    document.getElementById("buttonHeight");
 
 const cornerRadius =
-  document.getElementById("cornerRadius");
+    document.getElementById("cornerRadius");
 
 const fontSize =
-  document.getElementById("fontSize");
+    document.getElementById("fontSize");
 
 const backgroundColor =
-  document.getElementById("backgroundColor");
+    document.getElementById("backgroundColor");
 
 const textColor =
-  document.getElementById("textColor");
+    document.getElementById("textColor");
 
 
-/*
- * Output labels beside the sliders.
- */
+/* Output fields displayed beside sliders. */
 
 const buttonWidthValue =
-  document.getElementById("buttonWidthValue");
+    document.getElementById("buttonWidthValue");
 
 const buttonHeightValue =
-  document.getElementById("buttonHeightValue");
+    document.getElementById("buttonHeightValue");
 
 const cornerRadiusValue =
-  document.getElementById("cornerRadiusValue");
+    document.getElementById("cornerRadiusValue");
 
 const fontSizeValue =
-  document.getElementById("fontSizeValue");
+    document.getElementById("fontSizeValue");
 
 
-/*
- * The button being displayed in the preview.
- */
-
-const previewButton =
-  document.getElementById("previewButton");
-
+/* =========================================================
+   MODEL HELPERS
+   ========================================================= */
 
 /*
- * The <pre> element displaying our JSON design model.
- */
+    For this version we know exactly where Button 1 lives.
 
-const designModel =
-  document.getElementById("designModel");
+    Later we will replace this with a function that finds any object
+    in the tree by its unique ID.
+*/
+function getButton1() {
 
-
-/* ============================================================
-   RENDER THE DESIGN
-   ============================================================ */
-
-/*
- * This function takes the values stored in the design object
- * and applies them to the preview.
- *
- * The controls do NOT directly manipulate the preview.
- *
- * Instead:
- *
- *      control
- *         ↓
- *      design model
- *         ↓
- *      render()
- *         ↓
- *      preview
- *
- * That separation will become very useful when we add
- * code generation.
- */
-
-function render() {
-
-  previewButton.textContent =
-    design.text;
-
-  previewButton.style.width =
-    design.width + "px";
-
-  previewButton.style.height =
-    design.height + "px";
-
-  previewButton.style.borderRadius =
-    design.cornerRadius + "px";
-
-  previewButton.style.fontSize =
-    design.fontSize + "px";
-
-  previewButton.style.backgroundColor =
-    design.backgroundColor;
-
-  previewButton.style.color =
-    design.textColor;
-
-
-  /*
-   * Update the slider-value displays.
-   */
-
-  buttonWidthValue.textContent =
-    design.width + " px";
-
-  buttonHeightValue.textContent =
-    design.height + " px";
-
-  cornerRadiusValue.textContent =
-    design.cornerRadius + " px";
-
-  fontSizeValue.textContent =
-    design.fontSize + " px";
-
-
-  /*
-   * Display the underlying design object as formatted JSON.
-   */
-
-  designModel.textContent =
-    JSON.stringify(design, null, 2);
+    return design.surface.children[0].children[0];
 
 }
 
 
-/* ============================================================
-   EVENT HANDLERS
-   ============================================================ */
+/* =========================================================
+   RENDERING
+   ========================================================= */
 
 /*
- * Each control modifies the design model and then asks
- * render() to redraw the preview.
- */
+    Render one graphical element.
+
+    parentX and parentY contain the accumulated offsets of every
+    container above this element in the hierarchy.
+*/
+function renderElement(element, parentX, parentY) {
+
+    /*
+        Calculate the element's absolute position on the surface.
+
+        This is the heart of our coordinate system.
+    */
+    const absoluteX =
+        parentX + element.x;
+
+    const absoluteY =
+        parentY + element.y;
+
+
+    /*
+        At the moment we only support buttons.
+
+        More element types will be added later.
+    */
+    if (element.type === "button") {
+
+        const button =
+            document.createElement("button");
+
+        button.classList.add(
+            "designer-element",
+            "designer-button"
+        );
+
+        button.textContent =
+            element.text;
+
+
+        /*
+            Position the button at its calculated absolute position.
+        */
+        button.style.left =
+            absoluteX + "px";
+
+        button.style.top =
+            absoluteY + "px";
+
+
+        /*
+            Apply the remaining graphical properties.
+        */
+        button.style.width =
+            element.width + "px";
+
+        button.style.height =
+            element.height + "px";
+
+        button.style.borderRadius =
+            element.cornerRadius + "px";
+
+        button.style.fontSize =
+            element.fontSize + "px";
+
+        button.style.backgroundColor =
+            element.backgroundColor;
+
+        button.style.color =
+            element.textColor;
+
+
+        previewSurface.appendChild(button);
+
+    }
+
+}
+
+
+/*
+    Recursively process the children of a container.
+
+    offsetX and offsetY represent the accumulated position of the
+    parent container.
+*/
+function renderChildren(children, offsetX, offsetY) {
+
+    for (const child of children) {
+
+        if (child.type === "container") {
+
+            /*
+                Containers aren't drawn.
+
+                Instead, their offsets are added to the accumulated
+                offsets passed to their children.
+
+                This is what makes nested containers recursive.
+            */
+            const newOffsetX =
+                offsetX + child.x;
+
+            const newOffsetY =
+                offsetY + child.y;
+
+
+            /*
+                Render this container's children using the newly
+                calculated coordinate origin.
+            */
+            renderChildren(
+                child.children,
+                newOffsetX,
+                newOffsetY
+            );
+
+        } else {
+
+            /*
+                This is a visible element rather than a container.
+            */
+            renderElement(
+                child,
+                offsetX,
+                offsetY
+            );
+
+        }
+
+    }
+
+}
+
+
+/*
+    Render the complete design.
+*/
+function render() {
+
+    /*
+        Remove the previously generated elements.
+
+        The model remains untouched.
+    */
+    previewSurface.innerHTML = "";
+
+
+    /*
+        Make sure the HTML surface matches the dimensions stored in
+        the design model.
+    */
+    previewSurface.style.width =
+        design.surface.width + "px";
+
+    previewSurface.style.height =
+        design.surface.height + "px";
+
+
+    /*
+        Begin recursive rendering at the root surface.
+
+        The root coordinate system starts at (0,0).
+    */
+    renderChildren(
+        design.surface.children,
+        0,
+        0
+    );
+
+
+    /*
+        Display the current model so we can inspect it while developing.
+    */
+    designModelDisplay.textContent =
+        JSON.stringify(design, null, 2);
+
+
+    /*
+        Update slider value displays.
+    */
+    const button =
+        getButton1();
+
+    buttonWidthValue.value =
+        button.width;
+
+    buttonHeightValue.value =
+        button.height;
+
+    cornerRadiusValue.value =
+        button.cornerRadius;
+
+    fontSizeValue.value =
+        button.fontSize;
+
+}
+
+
+/* =========================================================
+   PROPERTY EDITING
+   ========================================================= */
+
+/*
+    Every control modifies the DESIGN MODEL first.
+
+    We then call render().
+
+    This is an important architectural rule:
+
+        User input
+            ↓
+        Design model changes
+            ↓
+        Renderer redraws preview
+
+    The preview itself is never our authoritative source of data.
+*/
+
 
 buttonText.addEventListener("input", function () {
 
-  design.text =
-    buttonText.value;
+    getButton1().text =
+        buttonText.value;
 
-  render();
+    render();
+
+});
+
+
+buttonX.addEventListener("input", function () {
+
+    getButton1().x =
+        Number(buttonX.value);
+
+    render();
+
+});
+
+
+buttonY.addEventListener("input", function () {
+
+    getButton1().y =
+        Number(buttonY.value);
+
+    render();
 
 });
 
 
 buttonWidth.addEventListener("input", function () {
 
-  design.width =
-    Number(buttonWidth.value);
+    getButton1().width =
+        Number(buttonWidth.value);
 
-  render();
+    render();
 
 });
 
 
 buttonHeight.addEventListener("input", function () {
 
-  design.height =
-    Number(buttonHeight.value);
+    getButton1().height =
+        Number(buttonHeight.value);
 
-  render();
+    render();
 
 });
 
 
 cornerRadius.addEventListener("input", function () {
 
-  design.cornerRadius =
-    Number(cornerRadius.value);
+    getButton1().cornerRadius =
+        Number(cornerRadius.value);
 
-  render();
+    render();
 
 });
 
 
 fontSize.addEventListener("input", function () {
 
-  design.fontSize =
-    Number(fontSize.value);
+    getButton1().fontSize =
+        Number(fontSize.value);
 
-  render();
+    render();
 
 });
 
 
 backgroundColor.addEventListener("input", function () {
 
-  design.backgroundColor =
-    backgroundColor.value;
+    getButton1().backgroundColor =
+        backgroundColor.value;
 
-  render();
+    render();
 
 });
 
 
 textColor.addEventListener("input", function () {
 
-  design.textColor =
-    textColor.value;
+    getButton1().textColor =
+        textColor.value;
 
-  render();
+    render();
 
 });
 
 
-/* ============================================================
-   INITIAL DISPLAY
-   ============================================================ */
+/* =========================================================
+   INITIAL RENDER
+   ========================================================= */
 
 /*
- * Draw the initial design when the page first loads.
- */
-
+    Draw the design when the page first loads.
+*/
 render();

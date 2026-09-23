@@ -1,238 +1,218 @@
 /*
- * Sudoclet UI Designer
- * Version 0.1
- *
- * This stylesheet controls the designer itself.
- */
+    Sudoclet UI Designer
+    Version 0.2
+
+    The preview now behaves as a two-dimensional drawing surface.
+*/
 
 
-/* ------------------------------------------------------------
-   Basic page setup
-   ------------------------------------------------------------ */
-
+/* Make width/height calculations predictable. */
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
+
 
 body {
-  margin: 0;
+    margin: 0;
 
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
+    background: #111318;
+    color: #eeeeee;
 
-  background: #111318;
-  color: #eeeeee;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 }
 
 
-/* ------------------------------------------------------------
-   Header
-   ------------------------------------------------------------ */
+/* ---------------------------------------------------------
+   APPLICATION HEADER
+   --------------------------------------------------------- */
 
 .app-header {
-  padding: 18px 24px;
+    padding: 16px 22px;
 
-  background: #191c22;
-  border-bottom: 1px solid #343840;
+    background: #191c22;
+
+    border-bottom: 1px solid #343841;
 }
 
 .app-header h1 {
-  margin: 0;
-  font-size: 22px;
+    margin: 0;
 }
 
 .app-header p {
-  margin: 4px 0 0;
-  color: #aeb4bf;
+    margin: 5px 0 0;
+
+    color: #aaaaaa;
 }
 
 
-/* ------------------------------------------------------------
-   Main three-column workspace
-   ------------------------------------------------------------ */
+/* ---------------------------------------------------------
+   MAIN WORKSPACE
+   --------------------------------------------------------- */
 
 .workspace {
-  display: grid;
+    display: grid;
 
-  grid-template-columns:
-    minmax(230px, 280px)
-    minmax(400px, 1fr)
-    minmax(300px, 400px);
+    grid-template-columns:
+        minmax(230px, 280px)
+        minmax(400px, 1fr)
+        minmax(300px, 400px);
 
-  gap: 12px;
+    gap: 12px;
 
-  padding: 12px;
+    padding: 12px;
 
-  min-height: calc(100vh - 85px);
+    min-height: calc(100vh - 85px);
 }
 
-
-/* ------------------------------------------------------------
-   Generic panels
-   ------------------------------------------------------------ */
 
 .panel {
-  background: #191c22;
+    padding: 18px;
 
-  border: 1px solid #343840;
-  border-radius: 10px;
+    background: #191c22;
 
-  padding: 18px;
+    border: 1px solid #343841;
+    border-radius: 10px;
 }
+
 
 .panel h2 {
-  margin-top: 0;
-  font-size: 17px;
+    margin-top: 0;
 }
 
 
-/* ------------------------------------------------------------
-   Property controls
-   ------------------------------------------------------------ */
+/* ---------------------------------------------------------
+   PROPERTY CONTROLS
+   --------------------------------------------------------- */
+
+.controls-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 
 .controls-panel label {
-  display: block;
+    margin-top: 8px;
 
-  margin-bottom: 22px;
-
-  color: #c8ccd4;
+    color: #cccccc;
 }
 
-.controls-panel input[type="text"] {
-  display: block;
 
-  width: 100%;
+.controls-panel input[type="text"],
+.controls-panel input[type="number"] {
+    padding: 8px;
 
-  margin-top: 7px;
-  padding: 8px;
+    background: #111318;
+    color: #eeeeee;
 
-  background: #101217;
-  color: #ffffff;
-
-  border: 1px solid #414650;
-  border-radius: 5px;
+    border: 1px solid #454a55;
+    border-radius: 5px;
 }
 
-.controls-panel input[type="range"] {
-  display: block;
-
-  width: 100%;
-
-  margin-top: 8px;
-}
-
-.controls-panel input[type="color"] {
-  display: block;
-
-  margin-top: 8px;
-
-  width: 60px;
-  height: 36px;
-
-  border: none;
-  background: none;
-}
 
 .controls-panel output {
-  display: block;
-
-  margin-top: 3px;
-
-  color: #8f97a4;
-  font-size: 13px;
+    color: #aaaaaa;
 }
 
 
-/* ------------------------------------------------------------
-   Preview
-   ------------------------------------------------------------ */
+/* ---------------------------------------------------------
+   PREVIEW PANEL
+   --------------------------------------------------------- */
 
 .preview-panel {
-  display: flex;
-  flex-direction: column;
-}
-
-.device-preview {
-  flex: 1;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 500px;
-
-  background: #f4f4f4;
-
-  border-radius: 8px;
+    overflow: auto;
 }
 
 
 /*
- * This is the actual element being designed.
- *
- * JavaScript will modify these properties as the controls change.
- */
+    This is the ROOT SURFACE.
 
-#previewButton {
-  width: 180px;
-  height: 60px;
+    Unlike our containers, the surface has a width and height.
 
-  border: none;
-  border-radius: 14px;
+    position: relative
+        Establishes the coordinate system used by absolutely positioned
+        elements inside the surface.
 
-  background: #5865f2;
-  color: #ffffff;
+    overflow: hidden
+        Causes the browser to clip anything extending beyond the surface.
+*/
+.preview-surface {
+    position: relative;
 
-  font-size: 18px;
+    width: 390px;
+    height: 700px;
 
-  cursor: pointer;
+    margin: 0 auto;
+
+    background: #f4f4f4;
+
+    border-radius: 8px;
+
+    overflow: hidden;
 }
 
 
-/* ------------------------------------------------------------
-   Design-model display
-   ------------------------------------------------------------ */
+/*
+    Every visible UI object generated by the designer uses absolute
+    positioning.
+
+    JavaScript supplies the actual left/top coordinates.
+*/
+.designer-element {
+    position: absolute;
+}
+
+
+/*
+    Basic appearance for button elements.
+
+    Size, position, colors, font size, etc. will be supplied by the
+    JavaScript design model.
+*/
+.designer-button {
+    border: none;
+
+    cursor: default;
+}
+
+
+/* ---------------------------------------------------------
+   DESIGN MODEL DISPLAY
+   --------------------------------------------------------- */
 
 #designModel {
-  margin: 0;
+    margin: 0;
 
-  padding: 14px;
+    padding: 12px;
 
-  overflow: auto;
+    background: #111318;
+    color: #b9e6b9;
 
-  background: #101217;
+    border-radius: 6px;
 
-  border-radius: 6px;
+    font-family:
+        Consolas,
+        "Courier New",
+        monospace;
 
-  color: #b9e6c3;
-
-  font-family:
-    Consolas,
-    "Courier New",
-    monospace;
-
-  font-size: 13px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 
-/* ------------------------------------------------------------
-   Smaller screens
-   ------------------------------------------------------------ */
+/* ---------------------------------------------------------
+   SMALLER WINDOWS
+   --------------------------------------------------------- */
 
 @media (max-width: 950px) {
 
-  .workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .device-preview {
-    min-height: 350px;
-  }
+    .workspace {
+        grid-template-columns: 1fr;
+    }
 
 }

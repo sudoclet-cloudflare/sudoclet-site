@@ -1,119 +1,158 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+    <meta charset="UTF-8">
 
-  <!-- Makes the designer display properly on phones and tablets. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Make the page behave properly on different display sizes. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Sudoclet UI Designer</title>
+    <title>Sudoclet UI Designer</title>
 
-  <!-- Keep styling separate from the HTML. -->
-  <link rel="stylesheet" href="designer.css">
+    <!-- UI Designer stylesheet. -->
+    <link rel="stylesheet" href="designer.css">
 </head>
 
 <body>
 
-  <header class="app-header">
-    <h1>Sudoclet UI Designer</h1>
-    <p>Design interface elements visually and generate application code.</p>
-  </header>
+    <header class="app-header">
+        <h1>Sudoclet UI Designer</h1>
+        <p>Design interface elements visually and generate application code.</p>
+    </header>
 
-  <main class="workspace">
+    <main class="workspace">
 
-    <!-- ============================================================
-         LEFT PANEL
-         Controls used to modify the selected UI element.
-         ============================================================ -->
-    <section class="panel controls-panel">
+        <!--
+            LEFT PANEL
 
-      <h2>Properties</h2>
+            For v0.2 these controls still edit Button 1 directly.
 
-      <label>
-        Button text
-        <input id="buttonText" type="text" value="Add Entry">
-      </label>
+            In a later version this panel will edit whichever object is
+            currently selected in the object tree or preview.
+        -->
+        <section class="panel controls-panel">
 
-      <label>
-        Width
-        <input id="buttonWidth" type="range"
-               min="80" max="350" value="180">
-        <output id="buttonWidthValue">180 px</output>
-      </label>
+            <h2>Properties</h2>
 
-      <label>
-        Height
-        <input id="buttonHeight" type="range"
-               min="30" max="150" value="60">
-        <output id="buttonHeightValue">60 px</output>
-      </label>
+            <label for="buttonText">Text</label>
+            <input
+                id="buttonText"
+                type="text"
+                value="Add Entry"
+            >
 
-      <label>
-        Corner radius
-        <input id="cornerRadius" type="range"
-               min="0" max="60" value="14">
-        <output id="cornerRadiusValue">14 px</output>
-      </label>
+            <label for="buttonX">X Offset</label>
+            <input
+                id="buttonX"
+                type="number"
+                value="105"
+            >
 
-      <label>
-        Font size
-        <input id="fontSize" type="range"
-               min="10" max="40" value="18">
-        <output id="fontSizeValue">18 px</output>
-      </label>
+            <label for="buttonY">Y Offset</label>
+            <input
+                id="buttonY"
+                type="number"
+                value="100"
+            >
 
-      <label>
-        Background color
-        <input id="backgroundColor"
-               type="color"
-               value="#5865f2">
-      </label>
+            <label for="buttonWidth">Width</label>
+            <input
+                id="buttonWidth"
+                type="range"
+                min="80"
+                max="350"
+                value="180"
+            >
+            <output id="buttonWidthValue">180</output>
 
-      <label>
-        Text color
-        <input id="textColor"
-               type="color"
-               value="#ffffff">
-      </label>
+            <label for="buttonHeight">Height</label>
+            <input
+                id="buttonHeight"
+                type="range"
+                min="30"
+                max="150"
+                value="60"
+            >
+            <output id="buttonHeightValue">60</output>
 
-    </section>
+            <label for="cornerRadius">Corner Radius</label>
+            <input
+                id="cornerRadius"
+                type="range"
+                min="0"
+                max="60"
+                value="14"
+            >
+            <output id="cornerRadiusValue">14</output>
+
+            <label for="fontSize">Font Size</label>
+            <input
+                id="fontSize"
+                type="range"
+                min="10"
+                max="40"
+                value="18"
+            >
+            <output id="fontSizeValue">18</output>
+
+            <label for="backgroundColor">Background</label>
+            <input
+                id="backgroundColor"
+                type="color"
+                value="#5865f2"
+            >
+
+            <label for="textColor">Text Color</label>
+            <input
+                id="textColor"
+                type="color"
+                value="#ffffff"
+            >
+
+        </section>
 
 
-    <!-- ============================================================
-         CENTER PANEL
-         Live preview of the interface element.
-         ============================================================ -->
-    <section class="panel preview-panel">
+        <!--
+            CENTER PANEL
 
-      <h2>Preview</h2>
+            previewSurface represents the finite screen/window being designed.
 
-      <div class="device-preview">
+            JavaScript will dynamically create all of the visible elements
+            inside this surface from our design model.
+        -->
+        <section class="panel preview-panel">
 
-        <button id="previewButton">
-          Add Entry
-        </button>
+            <h2>Preview</h2>
 
-      </div>
+            <div id="previewSurface" class="preview-surface">
+                <!--
+                    No button is hard-coded here anymore.
 
-    </section>
+                    JavaScript creates the buttons and other elements from
+                    the design model.
+                -->
+            </div>
+
+        </section>
 
 
-    <!-- ============================================================
-         RIGHT PANEL
-         Shows the platform-independent representation of the design.
-         ============================================================ -->
-    <section class="panel code-panel">
+        <!--
+            RIGHT PANEL
 
-      <h2>Design Model</h2>
+            This displays the actual JavaScript design model as JSON so we
+            can see what is happening internally while developing the editor.
+        -->
+        <section class="panel code-panel">
 
-      <pre id="designModel"></pre>
+            <h2>Design Model</h2>
 
-    </section>
+            <pre id="designModel"></pre>
 
-  </main>
+        </section>
 
-  <!-- JavaScript is loaded last so the HTML controls already exist. -->
-  <script src="designer.js"></script>
+    </main>
+
+    <!-- UI Designer application code. -->
+    <script src="designer.js"></script>
 
 </body>
 </html>
