@@ -1,8 +1,9 @@
 /*
     Sudoclet UI Designer
-    Version 0.2
+    Version 0.3
 
-    This version introduces:
+    This version adds button creation and selection.
+    The existing coordinate model retains:
 
         1. A finite root surface.
         2. Dimensionless containers.
@@ -119,9 +120,7 @@ const designModelDisplay =
 
 
 /*
-    For version 0.2 the Properties panel edits Button 1 directly.
-
-    Later we will replace this with a general selection system.
+    The Properties panel edits whichever button is selected.
 */
 const buttonText =
     document.getElementById("buttonText");
@@ -206,19 +205,155 @@ function findObjectById(children, id) {
 }
 
 /*
-    For this version we know exactly where Button 1 lives.
-
-    Later we will replace this with a function that finds any object
-    in the tree by its unique ID. - UPDATE - getButton1() has been 
-    replaced with a version that uses findObjectById() to locate the button anywhere in the design tree.
+    Selection belongs to the editor, not to the saved design model.
+    Keep the existing first button selected when the page opens.
 */
-function getButton1() {
+let selectedButtonId = "button-1";
+let nextButtonNumber = 2;
 
-    return findObjectById(
-        design.surface.children,
-        "button-1"
-    );
+const addButtonControl = document.getElementById("addButton");
+const buttonSelector = document.getElementById("buttonSelector");
+
+function getSelectedButton() {
+    return findObjectById(design.surface.children, selectedButtonId);
 }
+
+/* Find the parent and its accumulated origin, including nested containers. */
+function findButtonParent(container, id, originX = 0, originY = 0) {
+    for (const child of container.children) {
+        if (child.id === id) {
+            return { container, originX, originY };
+        }
+        if (child.type === "container") {
+            const result = findButtonParent(
+                child, id, originX + child.x, originY + child.y
+            );
+            if (result) return result;
+        }
+    }
+    return null;
+}
+
+/* Load controls only when selection changes, preserving typing while editing. */
+function loadSelectedProperties() {
+    const button = getSelectedButton();
+    buttonText.value = button.text;
+    buttonX.value = button.x;
+    buttonY.value = button.y;
+    buttonWidth.value = button.width;
+    buttonHeight.value = button.height;
+    cornerRadius.value = button.cornerRadius;
+    fontSize.value = button.fontSize;
+    backgroundColor.value = button.backgroundColor;
+    textColor.value = button.textColor;
+    updateSliderValues();
+}
+
+function updateSliderValues() {
+    const button = getSelectedButton();
+    buttonWidthValue.value = button.width;
+    buttonHeightValue.value = button.height;
+    cornerRadiusValue.value = button.cornerRadius;
+    fontSizeValue.value = button.fontSize;
+}
+
+function selectButton(id) {
+    const button = findObjectById(design.surface.children, id);
+    if (!button || button.type !== "button") return;
+    selectedButtonId = id;
+    buttonSelector.value = id;
+    loadSelectedProperties();
+
+    // Update the outline without replacing the focused preview button.
+    for (const previewButton of previewSurface.querySelectorAll(".designer-button")) {
+        const selected = previewButton.dataset.objectId === id;
+        previewButton.classList.toggle("is-selected", selected);
+        previewButton.setAttribute("aria-pressed", String(selected));
+    }
+}
+
+/* A flat list keeps overlapping or off-surface buttons selectable. */
+function refreshButtonSelector() {
+    buttonSelector.replaceChildren();
+    function appendButtons(children) {
+        for (const child of children) {
+            if (child.type === "container") {
+                appendButtons(child.children);
+            } else if (child.type === "button") {
+                const option = document.createElement("option");
+                option.value = child.id;
+                option.textContent = child.id + " — " + (child.text || "(empty text)");
+                buttonSelector.appendChild(option);
+            }
+        }
+    }
+    appendButtons(design.surface.children);
+    buttonSelector.value = selectedButtonId;
+}
+
+function addButton() {
+    const selected = getSelectedButton();
+    const parent = findButtonParent(design.surface, selectedButtonId);
+
+    const width = 180;
+    const height = 60;
+    const gap = 16;
+
+    /*
+        Compare bottom edges in local coordinates: these buttons all share
+        the same parent. Nested containers and their buttons are separate.
+    */
+    let lowestBottom = -Infinity;
+    for (const child of parent.container.children) {
+        if (child.type === "button") {
+            lowestBottom = Math.max(lowestBottom, child.y + child.height);
+        }
+    }
+    const x = selected.x;
+    const y = lowestBottom + gap;
+
+    // Absolute coordinates are needed only to check the root's clipping edge.
+    const absoluteX = parent.originX + x;
+    const absoluteY = parent.originY + y;
+    const placementMessage = document.getElementById("placementMessage");
+    if (absoluteX < 0 || absoluteX + width > design.surface.width ||
+        absoluteY < 0 || absoluteY + height > design.surface.height) {
+        placementMessage.textContent =
+            "Not enough room on the surface to add a button below this container's buttons. " +
+            "Move or resize existing buttons, or select a button at a different X position, then try again.";
+        return;
+    }
+    placementMessage.textContent = "";
+
+    // Assign an ID only after placement succeeds; failed attempts add nothing.
+    while (findObjectById(design.surface.children, "button-" + nextButtonNumber)) {
+        nextButtonNumber++;
+    }
+    const number = nextButtonNumber++;
+
+    const button = {
+        id: "button-" + number,
+        type: "button",
+        x,
+        y,
+        width,
+        height,
+        text: "Button " + number,
+        cornerRadius: 14,
+        fontSize: 18,
+        backgroundColor: "#5865f2",
+        textColor: "#ffffff"
+    };
+    parent.container.children.push(button);
+    selectedButtonId = button.id;
+    loadSelectedProperties();
+    render();
+}
+
+addButtonControl.addEventListener("click", addButton);
+buttonSelector.addEventListener("change", function () {
+    selectButton(buttonSelector.value);
+});
 
 /* =========================================================
    RENDERING
@@ -258,6 +393,15 @@ function renderElement(element, parentX, parentY) {
             "designer-element",
             "designer-button"
         );
+
+        button.type = "button";
+        button.dataset.objectId = element.id;
+        button.classList.toggle("is-selected", element.id === selectedButtonId);
+        button.setAttribute("aria-pressed", String(element.id === selectedButtonId));
+        button.setAttribute("aria-label", element.id + ": " + (element.text || "Empty button"));
+        button.addEventListener("click", function () {
+            selectButton(element.id);
+        });
 
         button.textContent =
             element.text;
@@ -400,23 +544,8 @@ function render() {
         JSON.stringify(design, null, 2);
 
 
-    /*
-        Update slider value displays.
-    */
-    const button =
-        getButton1();
-
-    buttonWidthValue.value =
-        button.width;
-
-    buttonHeightValue.value =
-        button.height;
-
-    cornerRadiusValue.value =
-        button.cornerRadius;
-
-    fontSizeValue.value =
-        button.fontSize;
+    refreshButtonSelector();
+    updateSliderValues();
 
 }
 
@@ -444,7 +573,7 @@ function render() {
 
 buttonText.addEventListener("input", function () {
 
-    getButton1().text =
+    getSelectedButton().text =
         buttonText.value;
 
     render();
@@ -454,7 +583,7 @@ buttonText.addEventListener("input", function () {
 
 buttonX.addEventListener("input", function () {
 
-    getButton1().x =
+    getSelectedButton().x =
         Number(buttonX.value);
 
     render();
@@ -464,7 +593,7 @@ buttonX.addEventListener("input", function () {
 
 buttonY.addEventListener("input", function () {
 
-    getButton1().y =
+    getSelectedButton().y =
         Number(buttonY.value);
 
     render();
@@ -474,7 +603,7 @@ buttonY.addEventListener("input", function () {
 
 buttonWidth.addEventListener("input", function () {
 
-    getButton1().width =
+    getSelectedButton().width =
         Number(buttonWidth.value);
 
     render();
@@ -484,7 +613,7 @@ buttonWidth.addEventListener("input", function () {
 
 buttonHeight.addEventListener("input", function () {
 
-    getButton1().height =
+    getSelectedButton().height =
         Number(buttonHeight.value);
 
     render();
@@ -494,7 +623,7 @@ buttonHeight.addEventListener("input", function () {
 
 cornerRadius.addEventListener("input", function () {
 
-    getButton1().cornerRadius =
+    getSelectedButton().cornerRadius =
         Number(cornerRadius.value);
 
     render();
@@ -504,7 +633,7 @@ cornerRadius.addEventListener("input", function () {
 
 fontSize.addEventListener("input", function () {
 
-    getButton1().fontSize =
+    getSelectedButton().fontSize =
         Number(fontSize.value);
 
     render();
@@ -514,7 +643,7 @@ fontSize.addEventListener("input", function () {
 
 backgroundColor.addEventListener("input", function () {
 
-    getButton1().backgroundColor =
+    getSelectedButton().backgroundColor =
         backgroundColor.value;
 
     render();
@@ -524,7 +653,7 @@ backgroundColor.addEventListener("input", function () {
 
 textColor.addEventListener("input", function () {
 
-    getButton1().textColor =
+    getSelectedButton().textColor =
         textColor.value;
 
     render();
@@ -539,4 +668,5 @@ textColor.addEventListener("input", function () {
 /*
     Draw the design when the page first loads.
 */
+loadSelectedProperties();
 render();

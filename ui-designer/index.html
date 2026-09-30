@@ -24,14 +24,18 @@
         <!--
             LEFT PANEL
 
-            For v0.2 these controls still edit Button 1 directly.
-
-            In a later version this panel will edit whichever object is
-            currently selected in the object tree or preview.
+            These controls edit the button selected in the preview or list.
         -->
         <section class="panel controls-panel">
 
             <h2>Properties</h2>
+
+            <button id="addButton" class="add-button" type="button">+ Add Button</button>
+            <p class="editor-hint">New buttons appear below the lowest button in the same container, using the selected button's X offset.</p>
+            <p id="placementMessage" class="editor-hint" role="status" aria-live="polite"></p>
+            <label for="buttonSelector">Selected button</label>
+            <select id="buttonSelector"></select>
+            <p class="editor-hint">Click a preview button or choose one above to edit it.</p>
 
             <label for="buttonText">Text</label>
             <input
@@ -122,6 +126,7 @@
         <section class="panel preview-panel">
 
             <h2>Preview</h2>
+            <p class="editor-hint">Changes are temporary and reset when you reload this page.</p>
 
             <div id="previewSurface" class="preview-surface">
                 <!--

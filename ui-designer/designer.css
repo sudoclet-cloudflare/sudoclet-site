@@ -1,6 +1,6 @@
 /*
     Sudoclet UI Designer
-    Version 0.2
+    Version 0.3
 
     The preview now behaves as a two-dimensional drawing surface.
 */
@@ -215,4 +215,48 @@ body {
         grid-template-columns: 1fr;
     }
 
+}
+/* Button creation and selection are editor controls, outside the design model. */
+.add-button {
+    padding: 10px 14px;
+    border: 1px solid #8892ff;
+    border-radius: 5px;
+    background: #5865f2;
+    color: #ffffff;
+    font: inherit;
+    cursor: pointer;
+}
+
+.controls-panel select {
+    width: 100%;
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid #454a55;
+    border-radius: 5px;
+    background: #111318;
+    color: #eeeeee;
+    font: inherit;
+}
+
+.editor-hint {
+    margin: 0 0 12px;
+    color: #aaaaaa;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.designer-button {
+    cursor: pointer;
+}
+
+.designer-button.is-selected {
+    outline: 3px solid #182747;
+    outline-offset: 3px;
+}
+
+.add-button:focus-visible,
+.controls-panel select:focus-visible,
+.designer-button:focus-visible {
+    outline: 3px solid #ec9706;
+    outline-offset: 3px;
 }
